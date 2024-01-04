@@ -3,16 +3,13 @@ package payments
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/matm/go-nowpayments/core"
 	"github.com/rotisserie/eris"
 )
 
-// PaymentAmount defines common fields used in PaymentArgs and
-// Payment structs.
+// PaymentAmount defines common fields used in PaymentArgs and Payment structs
 type PaymentAmount struct {
 	PriceAmount      float64 `json:"price_amount"`
 	PriceCurrency    string  `json:"price_currency"`
@@ -50,105 +47,37 @@ type PaymentArgs struct {
 }
 
 // Payment holds payment related information once we get a response
-// from the server.
-// FIXME: the API doc misses information about returned fields.
-// Misses also HTTP return codes.
-// Why is purchase_id an int instead of a string (payment status response)?
-// Another inconsistency: list of all payments returns a payment ID as an int instead of a string
-// https://documenter.getpostman.com/view/7907941/S1a32n38?version=latest#5e37f3ad-0fa1-4292-af51-5c7f95730486
+// This struct will be used in multiple API calls
 type Payment struct {
 	PaymentAmount
 
-	ID                     string  `json:"payment_id"`
+	ID           int64       `json:"payment_id"`
+	InvoiceID    json.Number `json:"invoice_id"`
+	Status       string      `json:"payment_status"`
+	PayAddress   string      `json:"pay_address"`
+	PayinExtraID string      `json:"payin_extra_id"`
+	PayAmount    float64     `json:"pay_amount"`
+	ActuallyPaid float64     `json:"actually_paid"`
+	PayCurrency  string      `json:"pay_currency"`
+	PurchaseID   json.Number `json:"purchase_id"`
+
+	OutcomeAmount   float64 `json:"outcome_amount"`
+	OutcomeCurrency string  `json:"outcome_currency"`
+
+	PayoutHash *string `json:"payout_hash"`
+	PayinHash  *string `json:"payin_hash"`
+
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+
+	Type                   string  `json:"type"`
 	AmountReceived         float64 `json:"amount_received"`
 	BurningPercent         int     `json:"burning_percent"`
-	CreatedAt              string  `json:"created_at"`
-	ExpirationEstimateDate string  `json:"expiration_estimate_date"`
-	Network                string  `json:"network"`
-	NetworkPrecision       int     `json:"network_precision"`
-	PayAddress             string  `json:"pay_address"`
-	PayAmount              float64 `json:"pay_amount"`
-	PayCurrency            string  `json:"pay_currency"`
-	PayinExtraID           string  `json:"payin_extra_id"`
-	PurchaseID             string  `json:"purchase_id"`
-	SmartContract          string  `json:"smart_contract"`
-	Status                 string  `json:"payment_status"`
-	TimeLimit              string  `json:"time_limit"`
-	UpdatedAt              string  `json:"updated_at"`
-}
-
-// UnmarshalJSON provides custom unmarshalling to the Payment struct so it
-// can work it all known cases.
-// This is to prevent 2 inconsistencies where their API returns:
-// ID as an int (after "list payments" call) or a string (after "create payment" call)
-// PayAmount as a string or a float64 (difference betwwen prod and sandbox APIs).
-func (p *Payment) UnmarshalJSON(b []byte) error {
-	type sp struct {
-		PaymentAmount
-
-		ID                     interface{} `json:"payment_id"`
-		AmountReceived         float64     `json:"amount_received"`
-		BurningPercent         int         `json:"burning_percent"`
-		CreatedAt              string      `json:"created_at"`
-		ExpirationEstimateDate string      `json:"expiration_estimate_date"`
-		Network                string      `json:"network"`
-		NetworkPrecision       int         `json:"network_precision"`
-		PayAddress             string      `json:"pay_address"`
-		PayAmount              interface{} `json:"pay_amount"`
-		PayCurrency            string      `json:"pay_currency"`
-		PayinExtraID           string      `json:"payin_extra_id"`
-		PurchaseID             string      `json:"purchase_id"`
-		SmartContract          string      `json:"smart_contract"`
-		Status                 string      `json:"payment_status"`
-		TimeLimit              string      `json:"time_limit"`
-		UpdatedAt              string      `json:"updated_at"`
-	}
-	j := sp{}
-	err := json.Unmarshal(b, &j)
-	if err != nil {
-		return eris.Wrap(err, "payment custom unmarshal")
-	}
-	z := Payment{
-		PaymentAmount:          j.PaymentAmount,
-		AmountReceived:         j.AmountReceived,
-		BurningPercent:         j.BurningPercent,
-		CreatedAt:              j.CreatedAt,
-		ExpirationEstimateDate: j.ExpirationEstimateDate,
-		Network:                j.Network,
-		NetworkPrecision:       j.NetworkPrecision,
-		PayAddress:             j.PayAddress,
-		PayCurrency:            j.PayCurrency,
-		PayinExtraID:           j.PayinExtraID,
-		PurchaseID:             j.PurchaseID,
-		SmartContract:          j.SmartContract,
-		Status:                 j.Status,
-		TimeLimit:              j.TimeLimit,
-		UpdatedAt:              j.UpdatedAt,
-	}
-	switch j.PayAmount.(type) {
-	case string:
-		pa, err := strconv.ParseFloat(j.PayAmount.(string), 64)
-		if err != nil {
-			return eris.Wrap(err, "parsing pay_amount as a float")
-		}
-		z.PayAmount = pa
-	case float64:
-		z.PayAmount = j.PayAmount.(float64)
-	default:
-		// Any other type (including nil) converts to a zero value,
-		// which is the default. Do nothing.
-	}
-	switch j.ID.(type) {
-	case string:
-		z.ID = j.ID.(string)
-	case float64:
-		z.ID = fmt.Sprintf("%d", int(j.ID.(float64)))
-	default:
-		// Any other type converts to the default value for the type.
-		// Do nothing.
-	}
-	*p = z
-	return nil
+	ExpirationEstimateDate string  `json:"expiration_estimate_date,omitempty"`
+	Network                string  `json:"network,omitempty"`
+	NetworkPrecision       int     `json:"network_precision,omitempty"`
+	SmartContract          string  `json:"smart_contract,omitempty"`
+	TimeLimit              string  `json:"time_limit,omitempty"`
 }
 
 // New creates a payment.

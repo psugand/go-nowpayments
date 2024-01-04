@@ -9,11 +9,14 @@ func All() ([]string, error) {
 	type curr struct {
 		All []string `json:"currencies"`
 	}
+
 	c := &curr{}
+
 	par := &core.SendParams{
 		RouteName: "currencies",
 		Into:      &c,
 	}
+
 	return c.All, core.HTTPSend(par)
 }
 
@@ -24,10 +27,13 @@ func Selected() ([]string, error) {
 	type selCur struct {
 		All []string `json:"selectedCurrencies"`
 	}
+
 	c := &selCur{}
+
 	par := &core.SendParams{
 		RouteName: "selected-currencies",
 		Into:      &c,
 	}
+	
 	return c.All, core.HTTPSend(par)
 }

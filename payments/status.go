@@ -6,35 +6,37 @@ import (
 	"github.com/rotisserie/eris"
 )
 
-// PaymentStatus is the actual information about a payment.
+// PaymentStatus is the actual information about a payment
 type PaymentStatus struct {
-	ActuallyPaid float64 `json:"actually_paid"`
-	// CreatedAt looks like 2019-04-18T13:39:27.982Z.
-	CreatedAt       string  `json:"created_at"`
-	OutcomeAmount   float64 `json:"outcome_amount"`
-	OutcomeCurrency string  `json:"outcome_currency"`
-	PayAddress      string  `json:"pay_address"`
-	PayAmount       float64 `json:"pay_amount"`
-	PayCurrency     string  `json:"pay_currency"`
-	PriceAmount     float64 `json:"price_amount"`
-	PriceCurrency   string  `json:"price_currency"`
-	PurchaseID      int     `json:"purchase_id"`
-	Status          string  `json:"payment_status"`
-	UpdatedAt       string  `json:"updated_at"`
+	ID             int64   `json:"payment_id"`
+	InvoiceID      int64   `json:"invoice_id"`
+	Status         string  `json:"payment_status"`
+	PayAddress     string  `json:"pay_address"`
+	PayinExtraID   string  `json:"payin_extra_id"`
+	PriceAmount    float64 `json:"price_amount"`
+	PriceCurrency  string  `json:"price_currency"`
+	PayAmount      float64 `json:"pay_amount"`
+	ActuallyPaid   float64 `json:"actually_paid"`
+	PayCurrency    string  `json:"pay_currency"`
+	OrderID        string  `json:"order_id"`
+	PurchaseID     int64   `json:"purchase_id"`
+	CreatedAt      string  `json:"created_at"`
+	UpdatedAt      string  `json:"updated_at"`
+	BurningPurcent string  `json:"burning_percent"`
+	Type           string  `json:"type"`
 }
 
 // Status gets the actual information about the payment. You need to provide the ID of the payment in the request.
-// Note that unlike what the official doc says, a Bearer JWTtoken is required for this endpoint
-// to work.
 func Status(paymentID string) (*PaymentStatus, error) {
-	// payment status: code 401 (AUTH_REQUIRED): Authorization header is empty (Bearer JWTtoken is required)
 	if paymentID == "" {
 		return nil, eris.New("empty payment ID")
 	}
+
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
 		return nil, eris.Wrap(err, "status")
 	}
+
 	st := &PaymentStatus{}
 	par := &core.SendParams{
 		RouteName: "payment-status",
@@ -42,9 +44,11 @@ func Status(paymentID string) (*PaymentStatus, error) {
 		Into:      &st,
 		Token:     tok,
 	}
+
 	err = core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+
 	return st, nil
 }

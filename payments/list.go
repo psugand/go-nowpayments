@@ -23,6 +23,7 @@ type ListOption struct {
 // on the supplied options (which can be nil).
 func List(o *ListOption) ([]*Payment, error) {
 	u := url.Values{}
+
 	if o != nil {
 		if o.Limit != 0 {
 			u.Set("limit", fmt.Sprintf("%d", o.Limit))
@@ -41,13 +42,16 @@ func List(o *ListOption) ([]*Payment, error) {
 			u.Set("orderBy", o.OrderBy)
 		}
 	}
+
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
 		return nil, eris.Wrap(err, "list")
 	}
+
 	type plist struct {
 		Data []*Payment `json:"data"`
 	}
+
 	pl := &plist{Data: make([]*Payment, 0)}
 	par := &core.SendParams{
 		RouteName: "payments-list",
@@ -55,9 +59,11 @@ func List(o *ListOption) ([]*Payment, error) {
 		Values:    u,
 		Token:     tok,
 	}
+
 	err = core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+	
 	return pl.Data, nil
 }

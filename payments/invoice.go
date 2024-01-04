@@ -36,19 +36,23 @@ func NewInvoice(ia *InvoiceArgs) (*Invoice, error) {
 	if ia == nil {
 		return nil, errors.New("nil invoice args")
 	}
+
 	d, err := json.Marshal(ia)
 	if err != nil {
 		return nil, eris.Wrap(err, "invoice args")
 	}
+
 	p := &Invoice{}
 	par := &core.SendParams{
 		RouteName: "invoice-create",
 		Into:      &p,
 		Body:      strings.NewReader(string(d)),
 	}
+
 	err = core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+	
 	return p, nil
 }

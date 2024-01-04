@@ -27,12 +27,15 @@ func Load(r io.Reader) error {
 	if r == nil {
 		return configErr(errors.New("nil reader"))
 	}
+
 	conf = credentials{}
 	d := json.NewDecoder(r)
+
 	err := d.Decode(&conf)
 	if err != nil {
 		return configErr(err)
 	}
+	
 	// Sanity checks.
 	if conf.APIKey == "" {
 		return configErr(errors.New("API key is missing"))

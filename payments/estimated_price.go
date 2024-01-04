@@ -24,20 +24,24 @@ func EstimatedPrice(amount float64, currencyFrom, currencyTo string) (*Estimate,
 	if amount == 0 {
 		return nil, eris.New("use a price greater than zero")
 	}
+
 	u := url.Values{}
 	u.Set("amount", fmt.Sprintf("%f", amount))
 	u.Set("currency_from", currencyFrom)
 	u.Set("currency_to", currencyTo)
 	e := &Estimate{}
+
 	par := &core.SendParams{
 		RouteName: "estimate",
 		Into:      &e,
 		Values:    u,
 	}
+
 	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+
 	return e, nil
 }
 
@@ -55,15 +59,19 @@ func RefreshEstimatedPrice(paymentID string) (*LatestEstimate, error) {
 	if paymentID == "" {
 		return nil, errors.New("missing paymentID")
 	}
+
 	e := &LatestEstimate{}
+
 	par := &core.SendParams{
 		RouteName: "last-estimate",
 		Into:      &e,
 		Path:      paymentID + "/update-merchant-estimate",
 	}
+
 	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+	
 	return e, nil
 }
