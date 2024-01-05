@@ -14,11 +14,17 @@ type CurrencyAmount struct {
 	FiatEquivalent float64 `json:"fiat_equivalent"`
 }
 
-// MinimumAmount returns the minimum payment amount for a specific pair.
-func MinimumAmount(currencyFrom, currencyTo string) (*CurrencyAmount, error) {
+// MinimumAmount returns the minimum payment amount for a specific pair
+// fiatEquivalent is an optional param used to get equivalent amount in fiat currency (usd for example)
+func MinimumAmount(currencyFrom, currencyTo, fiatEquivalent string) (*CurrencyAmount, error) {
 	u := url.Values{}
 	u.Set("currency_from", currencyFrom)
 	u.Set("currency_to", currencyTo)
+
+	if fiatEquivalent != "" {
+		u.Set("fiat_equivalent", fiatEquivalent)
+	}
+
 	e := &CurrencyAmount{}
 
 	par := &core.SendParams{

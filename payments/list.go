@@ -19,8 +19,7 @@ type ListOption struct {
 	SortBy   string
 }
 
-// List returns a list of all transactions for a given API key, depending
-// on the supplied options (which can be nil).
+// List returns a list of all transactions, depending on the supplied options (which can be nil).
 func List(o *ListOption) ([]*Payment, error) {
 	u := url.Values{}
 

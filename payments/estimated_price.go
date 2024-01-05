@@ -9,7 +9,7 @@ import (
 	"github.com/rotisserie/eris"
 )
 
-// Estimate holds the estimated amount of crypto for a given Fiat value.
+// Estimate holds the estimated amount from one currency to another
 type Estimate struct {
 	CurrencyFrom    string  `json:"currency_from"`
 	CurrencyTo      string  `json:"currency_to"`
@@ -17,9 +17,7 @@ type Estimate struct {
 	EstimatedAmount string  `json:"estimated_amount"`
 }
 
-// EstimatedPrice calculates the approximate price in cryptocurrency for a given value in Fiat currency.
-// Need to provide the initial cost in the Fiat currency (amount, currency_from) and the necessary cryptocurrency (currency_to).
-// Currently following fiat currencies are available: usd, eur, nzd, brl.
+// EstimatedPrice calculates the approximate price from one currency to another (can be fiat or cryptocurrency)
 func EstimatedPrice(amount float64, currencyFrom, currencyTo string) (*Estimate, error) {
 	if amount == 0 {
 		return nil, eris.New("use a price greater than zero")
@@ -45,7 +43,7 @@ func EstimatedPrice(amount float64, currencyFrom, currencyTo string) (*Estimate,
 	return e, nil
 }
 
-// LatestEstimate holds info about the last price estimation.
+// LatestEstimate holds info about the last price estimation
 type LatestEstimate struct {
 	PaymentID      string  `json:"id"`
 	TokenID        string  `json:"token_id"`
@@ -53,8 +51,7 @@ type LatestEstimate struct {
 	ExpirationDate string  `json:"expiration_estimate_date"`
 }
 
-// RefreshEstimatedPrice gets the current estimate on the payment and update
-// the current estimate.
+// RefreshEstimatedPrice gets the current estimate on the payment and update the current estimate
 func RefreshEstimatedPrice(paymentID string) (*LatestEstimate, error) {
 	if paymentID == "" {
 		return nil, errors.New("missing paymentID")
@@ -72,6 +69,6 @@ func RefreshEstimatedPrice(paymentID string) (*LatestEstimate, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return e, nil
 }
