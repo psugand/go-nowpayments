@@ -38,18 +38,26 @@ type routeAttr struct {
 }
 
 var routes map[string]routeAttr = map[string]routeAttr{
-	"auth":                {http.MethodPost, "/auth"},
-	"currencies":          {http.MethodGet, "/currencies"},
-	"estimate":            {http.MethodGet, "/estimate"},
-	"invoice-create":      {http.MethodPost, "/invoice"},
-	"invoice-payment":     {http.MethodPost, "/invoice-payment"},
-	"last-estimate":       {http.MethodPost, "/payment"},
-	"min-amount":          {http.MethodGet, "/min-amount"},
-	"payment-create":      {http.MethodPost, "/payment"},
-	"payment-status":      {http.MethodGet, "/payment"},
-	"payments-list":       {http.MethodGet, "/payment/"},
-	"selected-currencies": {http.MethodGet, "/merchant/coins"},
-	"status":              {http.MethodGet, "/status"},
+	"auth":                      {http.MethodPost, "/auth"},
+	"currencies":                {http.MethodGet, "/currencies"},
+	"estimate":                  {http.MethodGet, "/estimate"},
+	"invoice-create":            {http.MethodPost, "/invoice"},
+	"invoice-payment":           {http.MethodPost, "/invoice-payment"},
+	"last-estimate":             {http.MethodPost, "/payment"},
+	"min-amount":                {http.MethodGet, "/min-amount"},
+	"payment-create":            {http.MethodPost, "/payment"},
+	"payment-status":            {http.MethodGet, "/payment"},
+	"payments-list":             {http.MethodGet, "/payment/"},
+	"selected-currencies":       {http.MethodGet, "/merchant/coins"},
+	"status":                    {http.MethodGet, "/status"},
+	"subscription-create":       {http.MethodPost, "/subscriptions/plans"},
+	"subscription-update":       {http.MethodPatch, "/subscriptions/plans"},
+	"subscription-single":       {http.MethodGet, "/subscriptions/plans"},
+	"subscription-list":         {http.MethodGet, "/subscriptions/plans"},
+	"subscription-create-email": {http.MethodPost, "/subscriptions"},
+	"recurring-payment-single":  {http.MethodGet, "/subscriptions"},
+	"recurring-payment-list":    {http.MethodGet, "/subscriptions"},
+	"recurring-payment-delete":       {http.MethodDelete, "/subscriptions"},
 }
 
 var (
