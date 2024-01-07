@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/CIDgravity/go-nowpayments/config"
-	"github.com/CIDgravity/go-nowpayments/core"
-	recurringPayment "github.com/CIDgravity/go-nowpayments/recurring_payment"
+	"github.com/matn/go-nowpayments/config"
+	"github.com/matn/go-nowpayments/core"
+	recurringPayment "github.com/matn/go-nowpayments/recurring_payments"
 	"github.com/rotisserie/eris"
 )
 

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/CIDgravity/go-nowpayments/config"
+	"github.com/matn/go-nowpayments/config"
 	"github.com/rotisserie/eris"
 )
 
@@ -57,7 +57,7 @@ var routes map[string]routeAttr = map[string]routeAttr{
 	"subscription-create-email": {http.MethodPost, "/subscriptions"},
 	"recurring-payment-single":  {http.MethodGet, "/subscriptions"},
 	"recurring-payment-list":    {http.MethodGet, "/subscriptions"},
-	"recurring-payment-delete":       {http.MethodDelete, "/subscriptions"},
+	"recurring-payment-delete":  {http.MethodDelete, "/subscriptions"},
 }
 
 var (

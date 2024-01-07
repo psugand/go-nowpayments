@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/CIDgravity/go-nowpayments/core"
+	"github.com/matn/go-nowpayments/core"
 	"github.com/rotisserie/eris"
 )
 

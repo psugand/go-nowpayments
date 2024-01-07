@@ -1,7 +1,7 @@
 package currencies
 
 import (
-	"github.com/CIDgravity/go-nowpayments/core"
+	"github.com/matn/go-nowpayments/core"
 )
 
 // All returns a list of all supported cryptocurrencies.
@@ -34,6 +34,6 @@ func Selected() ([]string, error) {
 		RouteName: "selected-currencies",
 		Into:      &c,
 	}
-	
+
 	return c.All, core.HTTPSend(par)
 }
