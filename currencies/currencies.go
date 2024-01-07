@@ -4,7 +4,7 @@ import (
 	"github.com/matn/go-nowpayments/core"
 )
 
-// All returns a list of all supported cryptocurrencies.
+// All returns a list of all supported cryptocurrencies
 func All() ([]string, error) {
 	type curr struct {
 		All []string `json:"currencies"`
@@ -20,9 +20,8 @@ func All() ([]string, error) {
 	return c.All, core.HTTPSend(par)
 }
 
-// Selected returns information about the cryptocurrencies available for payments.
-// Shows the coins set as available for payments in the "coins settings" tab
-// on personal account page.
+// Selected returns information about the cryptocurrencies available for payments
+// Shows the coins set as available for payments in the "coins settings" tab on personal account page
 func Selected() ([]string, error) {
 	type selCur struct {
 		All []string `json:"selectedCurrencies"`

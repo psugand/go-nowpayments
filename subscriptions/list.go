@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/matn/go-nowpayments/config"
 	"github.com/matn/go-nowpayments/core"
-	"github.com/rotisserie/eris"
 )
 
 // ListOption are options applying to the list of subscriptions
@@ -28,11 +26,6 @@ func List(o *ListOption) ([]*Subscription, error) {
 		}
 	}
 
-	tok, err := core.Authenticate(config.Login(), config.Password())
-	if err != nil {
-		return nil, eris.Wrap(err, "list")
-	}
-
 	type slist struct {
 		Data []*Subscription `json:"data"`
 	}
@@ -42,10 +35,9 @@ func List(o *ListOption) ([]*Subscription, error) {
 		RouteName: "subscription-list",
 		Into:      pl,
 		Values:    u,
-		Token:     tok,
 	}
 
-	err = core.HTTPSend(par)
+	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}

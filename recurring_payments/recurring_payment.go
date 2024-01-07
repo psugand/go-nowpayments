@@ -1,10 +1,20 @@
 package recurring_payments
 
 import (
+	"encoding/json"
+	"errors"
+	"strings"
+
 	"github.com/matn/go-nowpayments/config"
 	"github.com/matn/go-nowpayments/core"
 	"github.com/rotisserie/eris"
 )
+
+// ReccuringPaymentArgs handle args to create a recurring payment for a specific custody user account
+type RecurringPaymentArgs struct {
+	SubscriptionPlanID int64 `json:"subscription_plan_id"`
+	SubPartnerID       int64 `json:"sub_partner_id"`
+}
 
 // RecurringPayment handle status of a specific recurring payment
 type RecurringPayment struct {
@@ -29,15 +39,50 @@ type Subscriber struct {
 	SubPartnerID string `json:"sub_partner_id,omniempty"`
 }
 
-// Get return a single reccuring payment via it's ID
-func Get(recurringPaymentID string) (*RecurringPayment, error) {
-	if recurringPaymentID == "" {
-		return nil, eris.New("empty recurring payment ID")
+// Create will create new recurring payment from custody user account
+// This require an existing user account (created using custody.Create method)
+// JWT is required for this request
+func Create(ru *RecurringPaymentArgs) (*RecurringPayment, error) {
+	if ru == nil {
+		return nil, errors.New("nil recurring payment args")
+	}
+
+	d, err := json.Marshal(ru)
+	if err != nil {
+		return nil, eris.Wrap(err, "custody user account args")
 	}
 
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
 		return nil, eris.Wrap(err, "status")
+	}
+
+	// CONSISTENCY PROBLEM ON THEIR SIDE: for some requests response is put under result object
+	type result struct {
+		Result *RecurringPayment `json:"result"`
+	}
+
+	rcu := &result{}
+
+	par := &core.SendParams{
+		RouteName: "recurring-payment-create",
+		Into:      &rcu,
+		Token:     tok,
+		Body:      strings.NewReader(string(d)),
+	}
+
+	err = core.HTTPSend(par)
+	if err != nil {
+		return nil, err
+	}
+
+	return rcu.Result, nil
+}
+
+// Get return a single reccuring payment via it's ID
+func Get(recurringPaymentID string) (*RecurringPayment, error) {
+	if recurringPaymentID == "" {
+		return nil, eris.New("empty recurring payment ID")
 	}
 
 	st := &RecurringPayment{}
@@ -46,10 +91,9 @@ func Get(recurringPaymentID string) (*RecurringPayment, error) {
 		RouteName: "recurring-payment-single",
 		Path:      recurringPaymentID,
 		Into:      &st,
-		Token:     tok,
 	}
 
-	err = core.HTTPSend(par)
+	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +102,7 @@ func Get(recurringPaymentID string) (*RecurringPayment, error) {
 }
 
 // Delete remove a recurring payment via it's ID
+// JWT is required for this request
 func Delete(recurringPaymentID string) (*DeleteReccurringPayment, error) {
 	if recurringPaymentID == "" {
 		return nil, eris.New("empty recurring payment ID")

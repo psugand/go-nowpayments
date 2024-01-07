@@ -55,9 +55,17 @@ var routes map[string]routeAttr = map[string]routeAttr{
 	"subscription-single":       {http.MethodGet, "/subscriptions/plans"},
 	"subscription-list":         {http.MethodGet, "/subscriptions/plans"},
 	"subscription-create-email": {http.MethodPost, "/subscriptions"},
-	"recurring-payment-single":  {http.MethodGet, "/subscriptions"},
-	"recurring-payment-list":    {http.MethodGet, "/subscriptions"},
-	"recurring-payment-delete":  {http.MethodDelete, "/subscriptions"},
+
+	// Recurring payments routes
+	"recurring-payment-create": {http.MethodPost, "/subscriptions"},
+	"recurring-payment-single": {http.MethodGet, "/subscriptions"},
+	"recurring-payment-list":   {http.MethodGet, "/subscriptions"},
+	"recurring-payment-delete": {http.MethodDelete, "/subscriptions"},
+
+	// Custody routes
+	"custody-create-account":  {http.MethodPost, "/sub-partner/balance"},
+	"custody-account-balance": {http.MethodGet, "/sub-partner/balance"},
+	"custody-list-transfers":  {http.MethodGet, "/sub-partner/transfers"},
 }
 
 var (
@@ -76,8 +84,7 @@ func UseBaseURL(b BaseURL) {
 	defaultURL = b
 }
 
-// HTTPSend sends to endpoint with an optional request body and get the HTTP
-// response result in into.
+// HTTPSend sends to endpoint with an optional request body and get the HTTP response result in into
 func HTTPSend(p *SendParams) error {
 	if p == nil {
 		return eris.New("nil params")
@@ -145,6 +152,7 @@ func HTTPSend(p *SendParams) error {
 		fmt.Println("<<< END DEBUG RAW RESPONSE BODY")
 		return eris.Wrap(json.Unmarshal(all, &p.Into), p.RouteName)
 	}
+
 	d := json.NewDecoder(res.Body)
 	err = d.Decode(&p.Into)
 	return eris.Wrap(err, p.RouteName)

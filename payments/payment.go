@@ -19,7 +19,7 @@ type PaymentAmount struct {
 	OrderDescription string  `json:"order_description,omitempty"`
 }
 
-// PaymentArgs are the arguments used to make a payment.
+// PaymentArgs are the arguments used to make a payment
 type PaymentArgs struct {
 	PaymentAmount
 
@@ -80,25 +80,30 @@ type Payment struct {
 	TimeLimit              string  `json:"time_limit,omitempty"`
 }
 
-// New creates a payment.
+// New creates a payment
 func New(pa *PaymentArgs) (*Payment, error) {
 	if pa == nil {
 		return nil, errors.New("nil payment args")
 	}
+
 	d, err := json.Marshal(pa)
 	if err != nil {
 		return nil, eris.Wrap(err, "payment args")
 	}
+
 	p := &Payment{}
+
 	par := &core.SendParams{
 		RouteName: "payment-create",
 		Into:      &p,
 		Body:      strings.NewReader(string(d)),
 	}
+
 	err = core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+
 	return p, nil
 }
 
@@ -113,25 +118,29 @@ type InvoicePaymentArgs struct {
 	PayoutAddress    string `json:"payout_address,omitempty"`
 }
 
-// NewFromInvoice creates a payment from an existing invoice. ID is the
-// invoice's identifier.
+// NewFromInvoice creates a payment from an existing invoice. ID is the invoice's identifier.
 func NewFromInvoice(ipa *InvoicePaymentArgs) (*Payment, error) {
 	if ipa == nil {
 		return nil, errors.New("nil invoice payment args")
 	}
+
 	d, err := json.Marshal(ipa)
 	if err != nil {
 		return nil, eris.Wrap(err, "payment from invoice args")
 	}
+
 	p := &Payment{}
+
 	par := &core.SendParams{
 		RouteName: "invoice-payment",
 		Into:      &p,
 		Body:      strings.NewReader(string(d)),
 	}
+
 	err = core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
+
 	return p, nil
 }

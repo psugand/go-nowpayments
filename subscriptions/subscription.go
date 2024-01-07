@@ -41,6 +41,7 @@ type Subscription struct {
 }
 
 // New create a subscription plan
+// JWT is required for this request
 func New(su *SubscriptionArgs) (*Subscription, error) {
 	if su == nil {
 		return nil, errors.New("nil subscription args")
@@ -51,12 +52,18 @@ func New(su *SubscriptionArgs) (*Subscription, error) {
 		return nil, eris.Wrap(err, "subscription args")
 	}
 
+	tok, err := core.Authenticate(config.Login(), config.Password())
+	if err != nil {
+		return nil, eris.Wrap(err, "status")
+	}
+
 	s := &Subscription{}
 
 	par := &core.SendParams{
 		RouteName: "subscription-create",
 		Into:      &s,
 		Body:      strings.NewReader(string(d)),
+		Token:     tok,
 	}
 
 	err = core.HTTPSend(par)
@@ -68,6 +75,7 @@ func New(su *SubscriptionArgs) (*Subscription, error) {
 }
 
 // NewWithEmail create an email subscription with specific plan ID
+// JWT is required for this request
 func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment, error) {
 	if su == nil {
 		return nil, errors.New("nil subscription email args")
@@ -78,11 +86,17 @@ func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment
 		return nil, eris.Wrap(err, "subscription email args")
 	}
 
+	tok, err := core.Authenticate(config.Login(), config.Password())
+	if err != nil {
+		return nil, eris.Wrap(err, "status")
+	}
+
 	s := &recurringPayment.RecurringPayment{}
 
 	par := &core.SendParams{
 		RouteName: "subscription-create-email",
 		Into:      &s,
+		Token:     tok,
 		Body:      strings.NewReader(string(d)),
 	}
 
@@ -95,6 +109,7 @@ func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment
 }
 
 // Update update a subscription plan
+// JWT is required for this request
 func Update(su *SubscriptionArgs) (*Subscription, error) {
 	if su == nil {
 		return nil, errors.New("nil subscription args")
@@ -105,11 +120,17 @@ func Update(su *SubscriptionArgs) (*Subscription, error) {
 		return nil, eris.Wrap(err, "subscription args")
 	}
 
+	tok, err := core.Authenticate(config.Login(), config.Password())
+	if err != nil {
+		return nil, eris.Wrap(err, "status")
+	}
+
 	s := &Subscription{}
 
 	par := &core.SendParams{
 		RouteName: "subscription-update",
 		Into:      &s,
+		Token:     tok,
 		Body:      strings.NewReader(string(d)),
 	}
 
@@ -127,21 +148,15 @@ func Get(subscriptionPlanID string) (*Subscription, error) {
 		return nil, eris.New("empty subscription plan ID")
 	}
 
-	tok, err := core.Authenticate(config.Login(), config.Password())
-	if err != nil {
-		return nil, eris.Wrap(err, "status")
-	}
-
 	st := &Subscription{}
 
 	par := &core.SendParams{
 		RouteName: "subscription-single",
 		Path:      subscriptionPlanID,
 		Into:      &st,
-		Token:     tok,
 	}
 
-	err = core.HTTPSend(par)
+	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}

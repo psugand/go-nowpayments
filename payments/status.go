@@ -1,7 +1,6 @@
 package payments
 
 import (
-	"github.com/matn/go-nowpayments/config"
 	"github.com/matn/go-nowpayments/core"
 	"github.com/rotisserie/eris"
 )
@@ -26,15 +25,10 @@ type PaymentStatus struct {
 	Type           string  `json:"type"`
 }
 
-// Status gets the actual information about the payment. You need to provide the ID of the payment in the request.
+// Status gets the actual information about the payment. You need to provide the payment ID
 func Status(paymentID string) (*PaymentStatus, error) {
 	if paymentID == "" {
 		return nil, eris.New("empty payment ID")
-	}
-
-	tok, err := core.Authenticate(config.Login(), config.Password())
-	if err != nil {
-		return nil, eris.Wrap(err, "status")
 	}
 
 	st := &PaymentStatus{}
@@ -42,10 +36,9 @@ func Status(paymentID string) (*PaymentStatus, error) {
 		RouteName: "payment-status",
 		Path:      paymentID,
 		Into:      &st,
-		Token:     tok,
 	}
 
-	err = core.HTTPSend(par)
+	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}

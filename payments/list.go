@@ -9,7 +9,7 @@ import (
 	"github.com/rotisserie/eris"
 )
 
-// ListOption are options applying to the list of transactions.
+// ListOption are options applying to the list of transactions
 type ListOption struct {
 	DateFrom string
 	DateTo   string
@@ -19,7 +19,8 @@ type ListOption struct {
 	SortBy   string
 }
 
-// List returns a list of all transactions, depending on the supplied options (which can be nil).
+// List returns a list of all transactions, depending on the supplied options (which can be nil)
+// JWT is required for this request
 func List(o *ListOption) ([]*Payment, error) {
 	u := url.Values{}
 

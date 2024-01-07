@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/matn/go-nowpayments/config"
 	"github.com/matn/go-nowpayments/core"
-	"github.com/rotisserie/eris"
 )
 
 type ListOption struct {
@@ -39,11 +37,6 @@ func List(o *ListOption) ([]*RecurringPayment, error) {
 		}
 	}
 
-	tok, err := core.Authenticate(config.Login(), config.Password())
-	if err != nil {
-		return nil, eris.Wrap(err, "list")
-	}
-
 	type plist struct {
 		Data []*RecurringPayment `json:"data"`
 	}
@@ -53,10 +46,9 @@ func List(o *ListOption) ([]*RecurringPayment, error) {
 		RouteName: "recurring-payment-list",
 		Into:      pl,
 		Values:    u,
-		Token:     tok,
 	}
 
-	err = core.HTTPSend(par)
+	err := core.HTTPSend(par)
 	if err != nil {
 		return nil, err
 	}
