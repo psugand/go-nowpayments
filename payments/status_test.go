@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/matm/go-nowpayments/mocks"
-	"github.com/matm/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

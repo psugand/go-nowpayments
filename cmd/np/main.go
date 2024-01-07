@@ -7,10 +7,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/matm/go-nowpayments/config"
-	"github.com/matm/go-nowpayments/core"
-	"github.com/matm/go-nowpayments/currencies"
-	"github.com/matm/go-nowpayments/payments"
+	"github.com/CIDgravity/go-nowpayments/config"
+	"github.com/CIDgravity/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/currencies"
+	"github.com/CIDgravity/go-nowpayments/payments"
 )
 
 func main() {

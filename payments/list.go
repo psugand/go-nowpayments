@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/matm/go-nowpayments/config"
-	"github.com/matm/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/config"
+	"github.com/CIDgravity/go-nowpayments/core"
 	"github.com/rotisserie/eris"
 )
 
@@ -63,6 +63,6 @@ func List(o *ListOption) ([]*Payment, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return pl.Data, nil
 }
