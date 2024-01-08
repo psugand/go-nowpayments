@@ -9,13 +9,29 @@ This is an unofficial Go library for the [crypto NOWPayments API](https://docume
 
 Topic|Endpoint|Package.Method|Implemented
 ---|:---|:---|:---:
+[Instant Payments Notifications](https://documenter.getpostman.com/view/7907941/S1a32n38#689df54e-9f43-42b3-bfe8-9bcca0444a6a)|||Yes
+||Verify signature|[ipn.VerifyRequestSignature(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/ipn#VerifyRequestSignature)|:heavy_check_mark:
+[Subscriptions](https://documenter.getpostman.com/view/7907941/2s93JusNJt#7020882a-50d6-465f-bc9b-ff94909bc179)|||Yes
+||Create plan|[subscriptions.New(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/subscriptions#New)|:heavy_check_mark:
+||Create e-mail subscription|[subscriptions.NewWithEmail(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/subscriptions#NewWithEmail)|:heavy_check_mark:
+||Update plan|[subscriptions.Update(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/subscriptions#Update)|:heavy_check_mark:
+||Get plan|[subscriptions.Get(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/subscriptions#Get)|:heavy_check_mark:
+||List plans|[subscriptions.List(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/subscriptions#List)|:heavy_check_mark:
 [Recurring payments](https://documenter.getpostman.com/view/7907941/S1a32n38#689df54e-9f43-42b3-bfe8-9bcca0444a6a)|||Yes
 ||Create|[recurring_payments.New(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/recurring_payments#New)|:heavy_check_mark:
 ||Get|[recurring_payments.Get(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/recurring_payments#Get)|:heavy_check_mark:
 ||Delete|[recurring_payments.Delete(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/recurring_payments#Delete)|:heavy_check_mark:
-[Billing (sub-partner / Custody)](https://documenter.getpostman.com/view/7907941/S1a32n38#a523b89b-40b7-4afe-b940-043d434a6c80)|||Yes
+[Billing (sub-partner / Custody)](https://documenter.getpostman.com/view/7907941/2s93JusNJt#2b3f0024-d9de-4b91-9db4-d3655e4eded9)|||Yes
 ||Deposit with payment|[custody.NewDepositWithPayment(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewDepositWithPayment)|:heavy_check_mark:
 ||Deposit from master account|[custody.NewDepositFroMasterAccount(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewDepositFroMasterAccount)|:heavy_check_mark:
+||Get payments|[custody.GetPayments(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#GetPayments)|:heavy_check_mark:
+||Transfer between users|[custody.NewTransfer(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewTransfer)|:heavy_check_mark:
+||Get transfer|[custody.GetTransfer(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#GetTransfer)|:heavy_check_mark:
+||List transfers|[custody.ListTransfers(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#ListTransfers)|:heavy_check_mark:
+||Create user|[custody.NewUser(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewUser)|:heavy_check_mark:
+||List users|[custody.ListUsers(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewUser)|:heavy_check_mark:
+||Get user balance|[custody.GetBalance(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#GetBalance)|:heavy_check_mark:
+||Write-off to master account|[custody.NewWriteOffToMaster(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewWriteOffToMaster)|:heavy_check_mark:
 [Payments](https://documenter.getpostman.com/view/7907941/S1a32n38#84c51632-01ad-49c0-96f8-fb4b5ad2b24a)|||Yes
 ||Get estimated price|[payments.EstimatedPrice(...)](https://pkg.go.dev/github.com/matm/go-nowpayments/pkg/payments#EstimatedPrice)|:heavy_check_mark:
 ||Get the minimum payment amount|[payments.MinimumAmount(...)](https://pkg.go.dev/github.com/matm/go-nowpayments/pkg/payments#MinimumAmount)|:heavy_check_mark:

@@ -1,4 +1,4 @@
-package payments
+package ipn
 
 import (
 	"crypto/hmac"
