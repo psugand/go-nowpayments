@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/matn/go-nowpayments/config"
-	"github.com/matn/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/config"
+	"github.com/CIDgravity/go-nowpayments/core"
 	"github.com/rotisserie/eris"
 )
 
@@ -39,10 +39,10 @@ type Subscriber struct {
 	SubPartnerID string `json:"sub_partner_id,omniempty"`
 }
 
-// Create will create new recurring payment from custody user account
+// New will create new recurring payment from custody user account
 // This require an existing user account (created using custody.Create method)
 // JWT is required for this request
-func Create(ru *RecurringPaymentArgs) (*RecurringPayment, error) {
+func New(ru *RecurringPaymentArgs) (*RecurringPayment, error) {
 	if ru == nil {
 		return nil, errors.New("nil recurring payment args")
 	}

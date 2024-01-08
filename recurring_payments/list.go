@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/matn/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/core"
 )
 
 type ListOption struct {

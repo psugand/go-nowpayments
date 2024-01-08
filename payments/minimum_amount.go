@@ -3,7 +3,7 @@ package payments
 import (
 	"net/url"
 
-	"github.com/matn/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/core"
 )
 
 // CurrencyAmount has info about minimum payment amount for a specific pair
