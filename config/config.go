@@ -10,10 +10,11 @@ import (
 )
 
 type credentials struct {
-	APIKey   string `json:"apiKey"`
-	Login    string `json:"login"`
-	Password string `json:"password"`
-	Server   string `json:"server"`
+	APIKey       string `json:"apiKey"`
+	IPNSecretKey string `json:"ipnSecretKey"`
+	Login        string `json:"login"`
+	Password     string `json:"password"`
+	Server       string `json:"server"`
 }
 
 var conf credentials
@@ -35,10 +36,13 @@ func Load(r io.Reader) error {
 	if err != nil {
 		return configErr(err)
 	}
-	
+
 	// Sanity checks.
 	if conf.APIKey == "" {
 		return configErr(errors.New("API key is missing"))
+	}
+	if conf.IPNSecretKey == "" {
+		return configErr(errors.New("IPN secret key is missing"))
 	}
 	if conf.Login == "" {
 		return configErr(errors.New("login info missing"))
@@ -70,6 +74,11 @@ func Password() string {
 // APIKey is the API key to use.
 func APIKey() string {
 	return conf.APIKey
+}
+
+// IPNSecretKey returns the related IPN secret key to use.
+func IPNSecretKey() string {
+	return conf.IPNSecretKey
 }
 
 // Server returns URL to connect to the API service.

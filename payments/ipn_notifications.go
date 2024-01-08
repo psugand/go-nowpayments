@@ -1,5 +1,15 @@
 package payments
 
+import (
+	"crypto/hmac"
+	"crypto/sha512"
+	"encoding/json"
+	"fmt"
+
+	"github.com/matn/go-nowpayments/config"
+	"github.com/rotisserie/eris"
+)
+
 type IPNPaymentFees struct {
 	Currency      string  `json:"currency"`
 	DepositFee    float64 `json:"depositFee"`
@@ -11,6 +21,7 @@ type IPNPaymentFees struct {
 // Docs found on https://documenter.getpostman.com/view/7907941/2s93JusNJt#62a6d281-478d-4927-8cd0-f96d677b8de6
 // Docs said IPN response is similar to PaymentStatus, but it's not the case
 // And because this struct is used to compare a signature (callback), must be exactly the same
+// Signature will be verified using VerifyRequestSignature method
 type IPNPaymentStatus struct {
 	ActuallyPaid       float64        `json:"actually_paid"`
 	ActuallyPaidAtFiat float64        `json:"actually_paid_at_fiat"`
@@ -31,4 +42,25 @@ type IPNPaymentStatus struct {
 	PriceAmount        float64        `json:"price_amount"`
 	PriceCurrency      string         `json:"price_currency"`
 	PurchaseID         string         `json:"purchase_id"`
+}
+
+func VerifyRequestSignature(expectedSignature string, ipnNotificationBody IPNPaymentStatus) error {
+	responseBodyAsBytes, err := json.Marshal(ipnNotificationBody)
+
+	if err != nil {
+		return err
+	}
+
+	// Create hmac sha512 using IPNSecretKey from config and response body
+	// the sort of keys in struct can be important, sometimes the signatures will differ if order differ
+	digest := hmac.New(sha512.New, []byte(config.IPNSecretKey()))
+	digest.Write(responseBodyAsBytes)
+	generatedSignature := digest.Sum(nil)
+
+	// Compare generated signature to expectedSignature
+	if fmt.Sprintf("%x", generatedSignature) == expectedSignature {
+		return nil
+	} else {
+		return eris.Wrap(fmt.Errorf("HMAC signature does not match"), "IPN signature verification")
+	}
 }
