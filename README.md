@@ -1,17 +1,21 @@
 # NOWPayments Go Library
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/matm/go-nowpayments.svg)](https://pkg.go.dev/github.com/matm/go-nowpayments)
-[![Go Report Card](https://goreportcard.com/badge/github.com/matm/go-nowpayments)](https://goreportcard.com/report/github.com/matm/go-nowpayments)
-[![codecov](https://codecov.io/gh/matm/go-nowpayments/branch/main/graph/badge.svg?token=AP16BAZR68)](https://codecov.io/gh/matm/go-nowpayments)
+[![Go Reference](https://pkg.go.dev/badge/github.com/matm/go-nowpayments.svg)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments)
+[![Go Report Card](https://goreportcard.com/badge/github.com/matm/go-nowpayments)](https://goreportcard.com/report/github.com/CIDgravity/go-nowpayments)
+[![codecov](https://codecov.io/gh/matm/go-nowpayments/branch/main/graph/badge.svg?token=AP16BAZR68)](https://codecov.io/gh/CIDgravity/go-nowpayments)
 
-This is an unofficial Go library for the [crypto NOWPayments API](https://documenter.getpostman.com/view/7907941/S1a32n38#84c51632-01ad-49c0-96f8-fb4b5ad2b24a) version 1.
-
-Note that the current implementation mostly focuses on the payments API for now:
+This repository is originally forked from  repository is [https://codecov.io/gh/matn/go-nowpayments](https://codecov.io/gh/matn/go-nowpayments)
+This is an unofficial Go library for the [crypto NOWPayments API](https://documenter.getpostman.com/view/7907941/S1a32n38#84c51632-01ad-49c0-96f8-fb4b5ad2b24a)
 
 Topic|Endpoint|Package.Method|Implemented
 ---|:---|:---|:---:
-[Recurring payments](https://documenter.getpostman.com/view/7907941/S1a32n38#689df54e-9f43-42b3-bfe8-9bcca0444a6a)|||No
-[Billing (sub-partner)](https://documenter.getpostman.com/view/7907941/S1a32n38#a523b89b-40b7-4afe-b940-043d434a6c80)|||No
+[Recurring payments](https://documenter.getpostman.com/view/7907941/S1a32n38#689df54e-9f43-42b3-bfe8-9bcca0444a6a)|||Yes
+||Create|[recurring_payments.New(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/recurring_payments#New)|:heavy_check_mark:
+||Get|[recurring_payments.Get(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/recurring_payments#Get)|:heavy_check_mark:
+||Delete|[recurring_payments.Delete(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/recurring_payments#Delete)|:heavy_check_mark:
+[Billing (sub-partner / Custody)](https://documenter.getpostman.com/view/7907941/S1a32n38#a523b89b-40b7-4afe-b940-043d434a6c80)|||Yes
+||Deposit with payment|[custody.NewDepositWithPayment(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewDepositWithPayment)|:heavy_check_mark:
+||Deposit from master account|[custody.NewDepositFroMasterAccount(...)](https://pkg.go.dev/github.com/CIDgravity/go-nowpayments/pkg/custody#NewDepositFroMasterAccount)|:heavy_check_mark:
 [Payments](https://documenter.getpostman.com/view/7907941/S1a32n38#84c51632-01ad-49c0-96f8-fb4b5ad2b24a)|||Yes
 ||Get estimated price|[payments.EstimatedPrice(...)](https://pkg.go.dev/github.com/matm/go-nowpayments/pkg/payments#EstimatedPrice)|:heavy_check_mark:
 ||Get the minimum payment amount|[payments.MinimumAmount(...)](https://pkg.go.dev/github.com/matm/go-nowpayments/pkg/payments#MinimumAmount)|:heavy_check_mark:
@@ -33,7 +37,7 @@ Topic|Endpoint|Package.Method|Implemented
 ## Installation
 
 ```bash
-$ go get github.com/matm/go-nowpayments@v1.0.4
+$ go get github.com/CIDgravity/go-nowpayments@v1.0.0
 ```
 
 ## Usage
@@ -49,98 +53,42 @@ import (
 	"log"
 	"strings"
 
-	"github.com/matm/go-nowpayments/config"
-	"github.com/matm/go-nowpayments/core"
-	"github.com/matm/go-nowpayments/payments"
+	"github.com/CIDgravity/go-nowpayments/config"
+	"github.com/CIDgravity/go-nowpayments/core"
+	"github.com/CIDgravity/go-nowpayments/payments"
 )
 
 func main() {
-      // Load sandbox's credentials.
 	err := config.Load(strings.NewReader(`
-{
-      "server": "https://api-sandbox.nowpayments.io/v1",
-      "login": "some_email@domain.tld",
-      "password": "some_password",
-      "apiKey": "some_api_key"
-}
-`))
+            {
+                  "server": "https://api-sandbox.nowpayments.io/v1",
+                  "login": "some_email@domain.tld",
+                  "password": "some_password",
+                  "apiKey": "some_api_key"
+            }
+      `))
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Use the server URL defined above.
 	core.UseBaseURL(core.BaseURL(config.Server()))
-	// Use default HTTP client.
 	core.UseClient(core.NewHTTPClient())
 
-	st, err := core.Status()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("API status:", st)
-
-	const limit = 2
 	ps, err := payments.List(&payments.ListOption{
-		Limit: limit,
+		Limit: 2,
 	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Printf("Last %d payments: %v\n", limit, ps)
 }
 ```
 
 ## CLI Tool
 
-A `np` tool is available to easily play with the payments API from the command line. Please make sure to target the sandbox API server in this case.
-
-Can be installed with:
-```bash
-$ go install github.com/matm/go-nowpayments/cmd/np@latest
-```
-
-The following commands are available:
-```
-Usage of np:
-  -a float
-        pay amount for new payment/invoice (default 2)
-  -c    show list of selected currencies
-  -case string
-        payment's case (sandbox only) (default "success")
-  -debug
-        turn debugging on
-  -f string
-        JSON config file to use
-  -i    new invoice
-  -l    list all payments
-  -n    new payment
-  -p string
-        status of payment ID
-  -pc string
-        crypto currency to pay in (default "xmr")
-  -pi string
-        new payment from invoice ID
-```
-
-In order to work, `np` expects a JSON config file provided as an argument, like
-```
-$ np -f conf.json -c
-```
-to list all crypto currencies available for payments.
-
-The JSON config file looks like
-```json
-{
-  "server": "https://api-sandbox.nowpayments.io/v1",
-  "login": "your_email_adresse",
-  "password": "some_password",
-  "apiKey": "the API key to use"
-}
-```
-
-- `server` is the path to the API server, i.e. one of
-  - sandbox: `https://api-sandbox.nowpayments.io/v1`
-  - production: `https://api.nowpayments.io/v1`
-- `login` and `password` are your NOWPayments credentials
-- `apiKey` is one API key generated in your admin account
+The CLI tool has not been updated and is not maintained in this repository
+To use it, you can do it from the original repository [https://codecov.io/gh/matn/go-nowpayments](https://codecov.io/gh/matn/go-nowpayments)
 
