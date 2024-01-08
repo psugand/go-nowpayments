@@ -1,8 +1,11 @@
 package custody
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/matn/go-nowpayments/config"
 	"github.com/matn/go-nowpayments/core"
@@ -10,12 +13,16 @@ import (
 )
 
 // ListTransfersOption are options applying to the list of transfers
-type ListTransfersOption struct {
-	Id     int64
+type ListTransfersOptionArgs struct {
+	ListCommonOptionsArgs
 	Status string
-	Limit  int64
-	Offset int64
-	Order  string
+}
+
+type TransferArgs struct {
+	FromID   string
+	ToID     string
+	Amount   float64
+	Currency string
 }
 
 type Transfer struct {
@@ -29,9 +36,64 @@ type Transfer struct {
 	Currency  string `json:"currency,omitempty"`
 }
 
+// NewTransfer will initiate a transfer between two user account
+// JWT is required for this request
+func NewTransfer(ta *TransferArgs) (*Transfer, error) {
+	if ta == nil {
+		return nil, errors.New("nil transfer args")
+	}
+
+	d, err := json.Marshal(ta)
+	if err != nil {
+		return nil, eris.Wrap(err, "transfer args")
+	}
+
+	tr := &core.V2ResponseFormat[*Transfer]{}
+	par := &core.SendParams{
+		RouteName: "custody-transfer-create",
+		Into:      &tr,
+		Body:      strings.NewReader(string(d)),
+	}
+
+	err = core.HTTPSend(par)
+	if err != nil {
+		return nil, err
+	}
+
+	return tr.Result, nil
+}
+
+// GetTransfer will return single transfer information based on the supplied transfer ID
+// JWT is required for this request
+func GetTransfer(transferID string) (*Transfer, error) {
+	if transferID == "" {
+		return nil, eris.New("empty transfer ID")
+	}
+
+	tok, err := core.Authenticate(config.Login(), config.Password())
+	if err != nil {
+		return nil, eris.Wrap(err, "list")
+	}
+
+	tr := &core.V2ResponseFormat[*Transfer]{}
+	par := &core.SendParams{
+		RouteName: "custody-transfer-single",
+		Path:      transferID,
+		Into:      &tr,
+		JWTToken:  tok,
+	}
+
+	err = core.HTTPSend(par)
+	if err != nil {
+		return nil, err
+	}
+
+	return tr.Result, nil
+}
+
 // Transfer with return a list of all transfers based on supplied options (which can be nil)
 // JWT is required for this request
-func ListTransfers(o *ListTransfersOption) ([]*Transfer, error) {
+func ListTransfers(o *ListTransfersOptionArgs) ([]*Transfer, error) {
 	u := url.Values{}
 
 	if o != nil {
@@ -57,16 +119,12 @@ func ListTransfers(o *ListTransfersOption) ([]*Transfer, error) {
 		return nil, eris.Wrap(err, "list")
 	}
 
-	type plist struct {
-		Result []*Transfer `json:"result"`
-	}
-
-	pl := &plist{Result: make([]*Transfer, 0)}
+	trl := &core.V2ResponseFormat[[]*Transfer]{}
 	par := &core.SendParams{
 		RouteName: "custody-list-transfers",
-		Into:      pl,
+		Into:      trl,
 		Values:    u,
-		Token:     tok,
+		JWTToken:  tok,
 	}
 
 	err = core.HTTPSend(par)
@@ -74,5 +132,5 @@ func ListTransfers(o *ListTransfersOption) ([]*Transfer, error) {
 		return nil, err
 	}
 
-	return pl.Result, nil
+	return trl.Result, nil
 }

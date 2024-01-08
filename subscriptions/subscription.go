@@ -54,7 +54,7 @@ func New(su *SubscriptionArgs) (*Subscription, error) {
 
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
-		return nil, eris.Wrap(err, "status")
+		return nil, eris.Wrap(err, "subscription")
 	}
 
 	s := &Subscription{}
@@ -63,7 +63,7 @@ func New(su *SubscriptionArgs) (*Subscription, error) {
 		RouteName: "subscription-create",
 		Into:      &s,
 		Body:      strings.NewReader(string(d)),
-		Token:     tok,
+		JWTToken:  tok,
 	}
 
 	err = core.HTTPSend(par)
@@ -88,7 +88,7 @@ func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment
 
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
-		return nil, eris.Wrap(err, "status")
+		return nil, eris.Wrap(err, "subscription")
 	}
 
 	s := &recurringPayment.RecurringPayment{}
@@ -96,7 +96,7 @@ func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment
 	par := &core.SendParams{
 		RouteName: "subscription-create-email",
 		Into:      &s,
-		Token:     tok,
+		JWTToken:  tok,
 		Body:      strings.NewReader(string(d)),
 	}
 
@@ -122,7 +122,7 @@ func Update(su *SubscriptionArgs) (*Subscription, error) {
 
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
-		return nil, eris.Wrap(err, "status")
+		return nil, eris.Wrap(err, "subscription")
 	}
 
 	s := &Subscription{}
@@ -130,7 +130,7 @@ func Update(su *SubscriptionArgs) (*Subscription, error) {
 	par := &core.SendParams{
 		RouteName: "subscription-update",
 		Into:      &s,
-		Token:     tok,
+		JWTToken:  tok,
 		Body:      strings.NewReader(string(d)),
 	}
 

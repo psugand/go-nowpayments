@@ -49,25 +49,19 @@ func Create(ru *RecurringPaymentArgs) (*RecurringPayment, error) {
 
 	d, err := json.Marshal(ru)
 	if err != nil {
-		return nil, eris.Wrap(err, "custody user account args")
+		return nil, eris.Wrap(err, "recurring payment args")
 	}
 
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
-		return nil, eris.Wrap(err, "status")
+		return nil, eris.Wrap(err, "recurring payment")
 	}
 
-	// CONSISTENCY PROBLEM ON THEIR SIDE: for some requests response is put under result object
-	type result struct {
-		Result *RecurringPayment `json:"result"`
-	}
-
-	rcu := &result{}
-
+	rcu := &core.V2ResponseFormat[*RecurringPayment]{}
 	par := &core.SendParams{
 		RouteName: "recurring-payment-create",
 		Into:      &rcu,
-		Token:     tok,
+		JWTToken:  tok,
 		Body:      strings.NewReader(string(d)),
 	}
 
@@ -86,7 +80,6 @@ func Get(recurringPaymentID string) (*RecurringPayment, error) {
 	}
 
 	st := &RecurringPayment{}
-
 	par := &core.SendParams{
 		RouteName: "recurring-payment-single",
 		Path:      recurringPaymentID,
@@ -110,16 +103,15 @@ func Delete(recurringPaymentID string) (*DeleteReccurringPayment, error) {
 
 	tok, err := core.Authenticate(config.Login(), config.Password())
 	if err != nil {
-		return nil, eris.Wrap(err, "status")
+		return nil, eris.Wrap(err, "recurring payment")
 	}
 
 	de := &DeleteReccurringPayment{}
-
 	par := &core.SendParams{
 		RouteName: "recurring-payment-delete",
 		Path:      recurringPaymentID,
 		Into:      &de,
-		Token:     tok,
+		JWTToken:  tok,
 	}
 
 	err = core.HTTPSend(par)

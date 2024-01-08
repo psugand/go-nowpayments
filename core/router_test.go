@@ -89,7 +89,7 @@ func TestHTTPSend(t *testing.T) {
 		},
 		{"with auth token", &SendParams{
 			RouteName: "status",
-			Token:     "token",
+			JWTToken:  "token",
 		}, false,
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK("{}")

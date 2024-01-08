@@ -57,7 +57,7 @@ func List(o *ListOption) ([]*Payment, error) {
 		RouteName: "payments-list",
 		Into:      pl,
 		Values:    u,
-		Token:     tok,
+		JWTToken:  tok,
 	}
 
 	err = core.HTTPSend(par)
