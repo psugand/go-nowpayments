@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/CIDgravity/go-nowpayments/config"
 	"github.com/CIDgravity/go-nowpayments/core"
@@ -25,10 +26,10 @@ type UserAccountArgs struct {
 
 // User hold response for a Custody user account
 type User struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // Balances hold multiple balances for Custody user account

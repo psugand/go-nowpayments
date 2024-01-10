@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/CIDgravity/go-nowpayments/config"
 	"github.com/CIDgravity/go-nowpayments/core"
@@ -13,10 +14,10 @@ import (
 
 // SubscriptionArgs handle args to create a subscription plan
 type SubscriptionArgs struct {
-	Title       float64 `json:"title"`
-	IntervalDay int64   `json:"interval_day"`
-	Amount      float64 `json:"amount"`
-	Currency    string  `json:"currency"`
+	Title       string  `json:"title,omitempty"`
+	IntervalDay int64   `json:"interval_day,omitempty"`
+	Amount      float64 `json:"amount,omitempty"`
+	Currency    string  `json:"currency,omitempty"`
 }
 
 // EmailSubscriptionArgs handle args to create a subscription with an email
@@ -27,17 +28,17 @@ type EmailSubscriptionArgs struct {
 
 // Subscription handle subscription plan
 type Subscription struct {
-	ID               string  `json:"id"`
-	Title            string  `json:"title"`
-	IntervalDay      string  `json:"interval_day"`
-	IpnCallbackURL   string  `json:"ipn_callback_url"`
-	SuccessURL       string  `json:"success_url"`
-	CancelURL        string  `json:"cancel_url"`
-	PartiallyPaidURL string  `json:"partially_paid_url"`
-	Amount           float64 `json:"amount"`
-	Currency         string  `json:"currency"`
-	CreatedAt        string  `json:"created_at"`
-	UpdatedAt        string  `json:"updated_at"`
+	ID               string    `json:"id"`
+	Title            string    `json:"title"`
+	IntervalDay      string    `json:"interval_day"`
+	IpnCallbackURL   string    `json:"ipn_callback_url,omitempty"`
+	SuccessURL       string    `json:"success_url,omitempty"`
+	CancelURL        string    `json:"cancel_url,omitempty"`
+	PartiallyPaidURL string    `json:"partially_paid_url,omitempty"`
+	Amount           float64   `json:"amount"`
+	Currency         string    `json:"currency"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 // New create a subscription plan
@@ -57,8 +58,7 @@ func New(su *SubscriptionArgs) (*Subscription, error) {
 		return nil, eris.Wrap(err, "subscription")
 	}
 
-	s := &Subscription{}
-
+	s := &core.V2ResponseFormat[*Subscription]{}
 	par := &core.SendParams{
 		RouteName: "subscription-create",
 		Into:      &s,
@@ -71,7 +71,7 @@ func New(su *SubscriptionArgs) (*Subscription, error) {
 		return nil, err
 	}
 
-	return s, nil
+	return s.Result, nil
 }
 
 // NewWithEmail create an email subscription with specific plan ID
@@ -91,8 +91,9 @@ func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment
 		return nil, eris.Wrap(err, "subscription")
 	}
 
-	s := &recurringPayment.RecurringPayment{}
-
+	// Inconsistency on their side: this request allow only one e-mail, but respond with an array of RecurringPayment
+	// So will return only the first element of array
+	s := &core.V2ResponseFormat[[]*recurringPayment.RecurringPayment]{}
 	par := &core.SendParams{
 		RouteName: "subscription-create-email",
 		Into:      &s,
@@ -105,12 +106,16 @@ func NewWithEmail(su *EmailSubscriptionArgs) (*recurringPayment.RecurringPayment
 		return nil, err
 	}
 
-	return s, nil
+	return s.Result[0], nil
 }
 
 // Update update a subscription plan
 // JWT is required for this request
-func Update(su *SubscriptionArgs) (*Subscription, error) {
+func Update(subscriptionPlanID string, su *SubscriptionArgs) (*Subscription, error) {
+	if subscriptionPlanID == "" {
+		return nil, eris.New("empty subscription plan ID")
+	}
+
 	if su == nil {
 		return nil, errors.New("nil subscription args")
 	}
@@ -125,12 +130,12 @@ func Update(su *SubscriptionArgs) (*Subscription, error) {
 		return nil, eris.Wrap(err, "subscription")
 	}
 
-	s := &Subscription{}
-
+	s := &core.V2ResponseFormat[*Subscription]{}
 	par := &core.SendParams{
 		RouteName: "subscription-update",
 		Into:      &s,
 		JWTToken:  tok,
+		Path:      subscriptionPlanID,
 		Body:      strings.NewReader(string(d)),
 	}
 
@@ -139,7 +144,7 @@ func Update(su *SubscriptionArgs) (*Subscription, error) {
 		return nil, err
 	}
 
-	return s, nil
+	return s.Result, nil
 }
 
 // Get return a single subscription plan by ID
@@ -148,8 +153,7 @@ func Get(subscriptionPlanID string) (*Subscription, error) {
 		return nil, eris.New("empty subscription plan ID")
 	}
 
-	st := &Subscription{}
-
+	st := &core.V2ResponseFormat[*Subscription]{}
 	par := &core.SendParams{
 		RouteName: "subscription-single",
 		Path:      subscriptionPlanID,
@@ -161,5 +165,5 @@ func Get(subscriptionPlanID string) (*Subscription, error) {
 		return nil, err
 	}
 
-	return st, nil
+	return st.Result, nil
 }

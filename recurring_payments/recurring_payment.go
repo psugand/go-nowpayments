@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/CIDgravity/go-nowpayments/config"
 	"github.com/CIDgravity/go-nowpayments/core"
@@ -24,8 +25,8 @@ type RecurringPayment struct {
 	Status             string     `json:"status"`
 	ExpireDate         string     `json:"expire_date"`
 	Subscriber         Subscriber `json:"subscriber"`
-	CreatedAt          string     `json:"created_at"`
-	UpdatedAt          string     `json:"updated_at"`
+	CreatedAt          time.Time  `json:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at"`
 }
 
 // DeleteReccurringPayment handle status when deleting recurring payment
@@ -35,8 +36,8 @@ type DeleteReccurringPayment struct {
 
 // Subscriber handle a subscriber to a specific plan
 type Subscriber struct {
-	Email        string `json:"email,omniempty"`
-	SubPartnerID string `json:"sub_partner_id,omniempty"`
+	Email        string `json:"email,omitempty"`
+	SubPartnerID string `json:"sub_partner_id,omitempty"`
 }
 
 // New will create new recurring payment from custody user account
@@ -57,7 +58,9 @@ func New(ru *RecurringPaymentArgs) (*RecurringPayment, error) {
 		return nil, eris.Wrap(err, "recurring payment")
 	}
 
-	rcu := &core.V2ResponseFormat[*RecurringPayment]{}
+	// Inconsistency on their side: single sub partner ID is allowed, but response is an array
+	// will return only the first element of array
+	rcu := &core.V2ResponseFormat[[]*RecurringPayment]{}
 	par := &core.SendParams{
 		RouteName: "recurring-payment-create",
 		Into:      &rcu,
@@ -70,7 +73,7 @@ func New(ru *RecurringPaymentArgs) (*RecurringPayment, error) {
 		return nil, err
 	}
 
-	return rcu.Result, nil
+	return rcu.Result[0], nil
 }
 
 // Get return a single reccuring payment via it's ID
@@ -79,11 +82,11 @@ func Get(recurringPaymentID string) (*RecurringPayment, error) {
 		return nil, eris.New("empty recurring payment ID")
 	}
 
-	st := &RecurringPayment{}
+	rp := &core.V2ResponseFormat[*RecurringPayment]{}
 	par := &core.SendParams{
 		RouteName: "recurring-payment-single",
 		Path:      recurringPaymentID,
-		Into:      &st,
+		Into:      &rp,
 	}
 
 	err := core.HTTPSend(par)
@@ -91,12 +94,12 @@ func Get(recurringPaymentID string) (*RecurringPayment, error) {
 		return nil, err
 	}
 
-	return st, nil
+	return rp.Result, nil
 }
 
 // Delete remove a recurring payment via it's ID
 // JWT is required for this request
-func Delete(recurringPaymentID string) (*DeleteReccurringPayment, error) {
+func Delete(recurringPaymentID string) (*string, error) {
 	if recurringPaymentID == "" {
 		return nil, eris.New("empty recurring payment ID")
 	}
@@ -106,7 +109,7 @@ func Delete(recurringPaymentID string) (*DeleteReccurringPayment, error) {
 		return nil, eris.Wrap(err, "recurring payment")
 	}
 
-	de := &DeleteReccurringPayment{}
+	de := &core.V2ResponseFormat[*string]{}
 	par := &core.SendParams{
 		RouteName: "recurring-payment-delete",
 		Path:      recurringPaymentID,
@@ -119,5 +122,5 @@ func Delete(recurringPaymentID string) (*DeleteReccurringPayment, error) {
 		return nil, err
 	}
 
-	return de, nil
+	return de.Result, nil
 }

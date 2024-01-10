@@ -24,9 +24,9 @@ type ListPaymentsOption struct {
 	SortBy       string
 }
 
-// GetPayments return all Custody Payments, based on provided filters (which can be nil)
+// ListPayments return all Custody Payments, based on provided filters (which can be nil)
 // JWT is required for this request
-func GetPayments(o *ListPaymentsOption) ([]*payments.Payment, error) {
+func ListPayments(o *ListPaymentsOption) ([]*payments.Payment[string], error) {
 	u := url.Values{}
 
 	if o != nil {
@@ -65,7 +65,7 @@ func GetPayments(o *ListPaymentsOption) ([]*payments.Payment, error) {
 		return nil, eris.Wrap(err, "list payments")
 	}
 
-	pal := &core.V2ResponseFormat[[]*payments.Payment]{}
+	pal := &core.V2ResponseFormat[[]*payments.Payment[string]]{}
 	par := &core.SendParams{
 		RouteName: "custody-payment-list",
 		Into:      pal,

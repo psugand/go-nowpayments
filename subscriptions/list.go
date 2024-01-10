@@ -26,11 +26,7 @@ func List(o *ListOption) ([]*Subscription, error) {
 		}
 	}
 
-	type slist struct {
-		Data []*Subscription `json:"data"`
-	}
-
-	pl := &slist{Data: make([]*Subscription, 0)}
+	pl := &core.V2ResponseFormat[[]*Subscription]{}
 	par := &core.SendParams{
 		RouteName: "subscription-list",
 		Into:      pl,
@@ -42,5 +38,5 @@ func List(o *ListOption) ([]*Subscription, error) {
 		return nil, err
 	}
 
-	return pl.Data, nil
+	return pl.Result, nil
 }

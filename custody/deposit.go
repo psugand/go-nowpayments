@@ -12,22 +12,22 @@ import (
 )
 
 type DepositArgs struct {
-	Currency     string
-	Amount       float64
-	SubPartnerID string
+	Currency     string  `json:"currency"`
+	Amount       float64 `json:"amount"`
+	SubPartnerID string  `json:"sub_partner_id"`
 }
 
 type DepositWithPaymentArgs struct {
 	DepositArgs
-	IsFixedRate     bool
-	IsFeePaidByUser bool
-	IpnCallbackURL  string
+	IsFixedRate     bool   `json:"is_fixed_rate"`
+	IsFeePaidByUser bool   `json:"is_fee_paid_by_user"`
+	IpnCallbackURL  string `json:"ipn_callback_url,omitempty"`
 }
 
 // NewDepositWithPayment will create a payment to deposit on a specific user account (refill account)
 // The response doesn't provide the payment link, but can be built using https://nowpayments.io/payment/?iid=[INVOICE_ID]&paymentId=[PAYMENT_id]
 // JWT is required for this request
-func NewDepositWithPayment(da *DepositWithPaymentArgs) (*payments.Payment, error) {
+func NewDepositWithPayment(da *DepositWithPaymentArgs) (*payments.Payment[string], error) {
 	if da == nil {
 		return nil, errors.New("nil deposit args")
 	}
@@ -42,7 +42,7 @@ func NewDepositWithPayment(da *DepositWithPaymentArgs) (*payments.Payment, error
 		return nil, eris.Wrap(err, "deposit with payment")
 	}
 
-	dp := &core.V2ResponseFormat[*payments.Payment]{}
+	dp := &core.V2ResponseFormat[*payments.Payment[string]]{}
 	par := &core.SendParams{
 		RouteName: "custody-deposit-with-payment",
 		Into:      &dp,

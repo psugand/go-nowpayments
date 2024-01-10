@@ -48,10 +48,11 @@ type PaymentArgs struct {
 
 // Payment holds payment related information once we get a response
 // This struct will be used in multiple API calls
-type Payment struct {
+// Inconsistency on their side: we need to use generics, because some times payment_id is string or int64
+type Payment[T string | int64] struct {
 	PaymentAmount
 
-	ID           int64       `json:"payment_id"`
+	ID           T           `json:"payment_id"`
 	InvoiceID    json.Number `json:"invoice_id"`
 	Status       string      `json:"payment_status"`
 	PayAddress   string      `json:"pay_address"`
@@ -81,7 +82,7 @@ type Payment struct {
 }
 
 // New creates a payment
-func New(pa *PaymentArgs) (*Payment, error) {
+func New(pa *PaymentArgs) (*Payment[string], error) {
 	if pa == nil {
 		return nil, errors.New("nil payment args")
 	}
@@ -91,7 +92,7 @@ func New(pa *PaymentArgs) (*Payment, error) {
 		return nil, eris.Wrap(err, "payment args")
 	}
 
-	p := &Payment{}
+	p := &Payment[string]{}
 
 	par := &core.SendParams{
 		RouteName: "payment-create",
@@ -119,7 +120,7 @@ type InvoicePaymentArgs struct {
 }
 
 // NewFromInvoice creates a payment from an existing invoice. ID is the invoice's identifier.
-func NewFromInvoice(ipa *InvoicePaymentArgs) (*Payment, error) {
+func NewFromInvoice(ipa *InvoicePaymentArgs) (*Payment[string], error) {
 	if ipa == nil {
 		return nil, errors.New("nil invoice payment args")
 	}
@@ -129,7 +130,7 @@ func NewFromInvoice(ipa *InvoicePaymentArgs) (*Payment, error) {
 		return nil, eris.Wrap(err, "payment from invoice args")
 	}
 
-	p := &Payment{}
+	p := &Payment[string]{}
 
 	par := &core.SendParams{
 		RouteName: "invoice-payment",

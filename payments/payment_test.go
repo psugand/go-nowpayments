@@ -17,10 +17,10 @@ func TestNew(t *testing.T) {
 		name  string
 		pa    *PaymentArgs
 		init  func(*mocks.HTTPClient)
-		after func(*Payment, error)
+		after func(*Payment[string], error)
 	}{
 		{"nil args", nil, nil,
-			func(p *Payment, err error) {
+			func(p *Payment[string], err error) {
 				assert.Nil(p)
 				assert.Error(err)
 			},
@@ -28,7 +28,7 @@ func TestNew(t *testing.T) {
 		{"api error", &PaymentArgs{PurchaseID: "1234"},
 			func(c *mocks.HTTPClient) {
 				c.EXPECT().Do(mock.Anything).Return(nil, errors.New("network error"))
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.Nil(p)
 				assert.Error(err)
 				assert.Equal("payment-create: network error", err.Error())
@@ -41,7 +41,7 @@ func TestNew(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"payment_id":"1234"}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 				assert.NotNil(p)
 				assert.Equal("1234", p.ID)
@@ -55,7 +55,7 @@ func TestNew(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"payment_id":"1234","pay_amount":"3.5"}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 				assert.NotNil(p)
 				assert.Equal("1234", p.ID)
@@ -69,7 +69,7 @@ func TestNew(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"payment_id":"1234","pay_amount":4.2}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 				assert.NotNil(p)
 				assert.Equal("1234", p.ID)
@@ -83,7 +83,7 @@ func TestNew(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"payment_id":"1234","pay_amount":100}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 			},
 		},
@@ -94,7 +94,7 @@ func TestNew(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"payment_id":"1234"}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 			},
 		},
@@ -104,7 +104,7 @@ func TestNew(t *testing.T) {
 				c.EXPECT().Do(mock.Anything).Run(func(r *http.Request) {
 					assert.Equal("/v1/payment", r.URL.Path, "bad endpoint")
 				}).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 				assert.NotNil(p)
 				assert.Equal("1234", p.ID)
@@ -132,7 +132,7 @@ func TestNewFromInvoice(t *testing.T) {
 		name  string
 		ipa   *InvoicePaymentArgs
 		init  func(*mocks.HTTPClient)
-		after func(*Payment, error)
+		after func(*Payment[string], error)
 	}{
 		{"route check", &InvoicePaymentArgs{},
 			func(c *mocks.HTTPClient) {
@@ -140,7 +140,7 @@ func TestNewFromInvoice(t *testing.T) {
 				c.EXPECT().Do(mock.Anything).Run(func(r *http.Request) {
 					assert.Equal("/v1/invoice-payment", r.URL.Path, "bad endpoint")
 				}).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 				assert.NotNil(p)
 				assert.Equal("1234", p.ID)
@@ -153,14 +153,14 @@ func TestNewFromInvoice(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"payment_id":"1234"}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.NoError(err)
 				assert.NotNil(p)
 				assert.Equal("1234", p.ID)
 			},
 		},
 		{"nil args", nil, nil,
-			func(p *Payment, err error) {
+			func(p *Payment[string], err error) {
 				assert.Nil(p)
 				assert.Error(err)
 			},
@@ -168,7 +168,7 @@ func TestNewFromInvoice(t *testing.T) {
 		{"api error", &InvoicePaymentArgs{InvoiceID: "1234"},
 			func(c *mocks.HTTPClient) {
 				c.EXPECT().Do(mock.Anything).Return(nil, errors.New("network error"))
-			}, func(p *Payment, err error) {
+			}, func(p *Payment[string], err error) {
 				assert.Nil(p)
 				assert.Error(err)
 				assert.Equal("invoice-payment: network error", err.Error())

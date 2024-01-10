@@ -37,14 +37,10 @@ func List(o *ListOption) ([]*RecurringPayment, error) {
 		}
 	}
 
-	type plist struct {
-		Data []*RecurringPayment `json:"data"`
-	}
-
-	pl := &plist{Data: make([]*RecurringPayment, 0)}
+	rpl := &core.V2ResponseFormat[[]*RecurringPayment]{}
 	par := &core.SendParams{
 		RouteName: "recurring-payment-list",
-		Into:      pl,
+		Into:      rpl,
 		Values:    u,
 	}
 
@@ -53,5 +49,5 @@ func List(o *ListOption) ([]*RecurringPayment, error) {
 		return nil, err
 	}
 
-	return pl.Data, nil
+	return rpl.Result, nil
 }

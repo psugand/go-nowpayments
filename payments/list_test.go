@@ -18,7 +18,7 @@ func TestList(t *testing.T) {
 		name  string
 		o     *ListOption
 		init  func(*mocks.HTTPClient)
-		after func([]*Payment, error)
+		after func([]*Payment[int64], error)
 	}{
 		{"route and response", nil,
 			func(c *mocks.HTTPClient) {
@@ -35,7 +35,7 @@ func TestList(t *testing.T) {
 						return nil
 					}, nil)
 			},
-			func(ps []*Payment, err error) {
+			func(ps []*Payment[int64], err error) {
 				assert.NoError(err)
 				if assert.Len(ps, 1) {
 					assert.Equal("1", ps[0].ID)
@@ -56,7 +56,7 @@ func TestList(t *testing.T) {
 						return nil
 					}, nil)
 			},
-			func(ps []*Payment, err error) {
+			func(ps []*Payment[int64], err error) {
 				assert.NoError(err)
 				if assert.Len(ps, 1) {
 					assert.Equal("54321", ps[0].ID)
@@ -85,7 +85,7 @@ func TestList(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				c.EXPECT().Do(mock.Anything).Return(nil, errors.New("bad credentials"))
 			},
-			func(ps []*Payment, err error) {
+			func(ps []*Payment[int64], err error) {
 				assert.Nil(ps)
 				assert.Error(err)
 				assert.Equal("list: auth: bad credentials", err.Error())

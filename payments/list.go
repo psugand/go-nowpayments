@@ -21,7 +21,7 @@ type ListOption struct {
 
 // List returns a list of all transactions, depending on the supplied options (which can be nil)
 // JWT is required for this request
-func List(o *ListOption) ([]*Payment, error) {
+func List(o *ListOption) ([]*Payment[int64], error) {
 	u := url.Values{}
 
 	if o != nil {
@@ -49,10 +49,10 @@ func List(o *ListOption) ([]*Payment, error) {
 	}
 
 	type plist struct {
-		Data []*Payment `json:"data"`
+		Data []*Payment[int64] `json:"data"`
 	}
 
-	pl := &plist{Data: make([]*Payment, 0)}
+	pl := &plist{Data: make([]*Payment[int64], 0)}
 	par := &core.SendParams{
 		RouteName: "payments-list",
 		Into:      pl,

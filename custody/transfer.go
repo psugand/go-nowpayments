@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/CIDgravity/go-nowpayments/config"
 	"github.com/CIDgravity/go-nowpayments/core"
@@ -19,21 +20,21 @@ type ListTransfersOptionArgs struct {
 }
 
 type TransferArgs struct {
-	FromID   string
-	ToID     string
-	Amount   float64
-	Currency string
+	FromID   string  `json:"from_id"`
+	ToID     string  `json:"to_id"`
+	Amount   float64 `json:"amount"`
+	Currency string  `json:"currency"`
 }
 
 type Transfer struct {
-	Id        string `json:"id,omitempty"`
-	FromSubID string `json:"from_sub_id,omitempty"`
-	ToSubID   string `json:"to_sub_id,omitempty"`
-	Status    string `json:"status,omitempty"`
-	CreatedAt string `json:"created_at,omitempty"`
-	UpdatedAt string `json:"updated_at,omitempty"`
-	Amount    string `json:"amount,omitempty"`
-	Currency  string `json:"currency,omitempty"`
+	Id        string    `json:"id,omitempty"`
+	FromSubID string    `json:"from_sub_id,omitempty"`
+	ToSubID   string    `json:"to_sub_id,omitempty"`
+	Status    string    `json:"status,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	Amount    string    `json:"amount,omitempty"`
+	Currency  string    `json:"currency,omitempty"`
 }
 
 // NewTransfer will initiate a transfer between two user account
@@ -48,11 +49,16 @@ func NewTransfer(ta *TransferArgs) (*Transfer, error) {
 		return nil, eris.Wrap(err, "transfer args")
 	}
 
+	tok, err := core.Authenticate(config.Login(), config.Password())
+	if err != nil {
+		return nil, eris.Wrap(err, "list")
+	}
 	tr := &core.V2ResponseFormat[*Transfer]{}
 	par := &core.SendParams{
 		RouteName: "custody-transfer-create",
 		Into:      &tr,
 		Body:      strings.NewReader(string(d)),
+		JWTToken:  tok,
 	}
 
 	err = core.HTTPSend(par)

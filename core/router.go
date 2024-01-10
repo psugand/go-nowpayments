@@ -75,6 +75,7 @@ var routes map[string]routeAttr = map[string]routeAttr{
 	// Custody routes
 	"custody-create-account":       {http.MethodPost, "/sub-partner/balance"},
 	"custody-account-balance":      {http.MethodGet, "/sub-partner/balance"},
+	"custody-transfer-create":      {http.MethodPost, "/sub-partner/transfer"},
 	"custody-list-transfers":       {http.MethodGet, "/sub-partner/transfers"},
 	"custody-transfer-single":      {http.MethodGet, "/sub-partner/transfer"},
 	"custody-list-users":           {http.MethodGet, "/sub-partner"},
