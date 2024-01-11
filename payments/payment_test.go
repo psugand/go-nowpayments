@@ -53,7 +53,7 @@ func TestNew(t *testing.T) {
 			PaymentAmount: PaymentAmount{PriceAmount: 10.0},
 		},
 			func(c *mocks.HTTPClient) {
-				resp := newResponseOK(`{"payment_id":"1234","pay_amount":"3.5"}`)
+				resp := newResponseOK(`{"payment_id":"1234","pay_amount":3.5}`)
 				c.EXPECT().Do(mock.Anything).Return(resp, nil)
 			}, func(p *Payment[string], err error) {
 				assert.NoError(err)

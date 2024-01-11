@@ -34,12 +34,14 @@ func newResponseOK(body string) *http.Response {
 	return newResponse(http.StatusOK, body)
 }
 
-func conf() *strings.Reader {
-	return strings.NewReader(`
-{
-	"login":"l","password":"p","apiKey":"key","server":"http://some.tld"
-}
-`)
+func conf() *config.Credentials {
+	return &config.Credentials{
+		Login:        "l",
+		Password:     "p",
+		APIKey:       "key",
+		Server:       "http://some.tld",
+		IPNSecretKey: "ipn",
+	}
 }
 
 func init() {

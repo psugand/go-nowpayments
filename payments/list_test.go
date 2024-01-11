@@ -38,7 +38,7 @@ func TestList(t *testing.T) {
 			func(ps []*Payment[int64], err error) {
 				assert.NoError(err)
 				if assert.Len(ps, 1) {
-					assert.Equal("1", ps[0].ID)
+					assert.Equal(int64(1), ps[0].ID)
 				}
 			}},
 		{"payment_id as a string", nil,
@@ -49,7 +49,7 @@ func TestList(t *testing.T) {
 						case "/v1/auth":
 							return newResponseOK(`{"token":"tok"}`)
 						case "/v1/payment/":
-							return newResponseOK(`{"data":[{"payment_id":"54321"}]}`)
+							return newResponseOK(`{"data":[{"payment_id":54321}]}`)
 						default:
 							t.Fatalf("unexpected route call %q", req.URL.Path)
 						}
@@ -59,7 +59,7 @@ func TestList(t *testing.T) {
 			func(ps []*Payment[int64], err error) {
 				assert.NoError(err)
 				if assert.Len(ps, 1) {
-					assert.Equal("54321", ps[0].ID)
+					assert.Equal(int64(54321), ps[0].ID)
 				}
 			}},
 		{"api error", nil,

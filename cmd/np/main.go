@@ -36,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	err = config.Load(f)
+	err = config.LoadFromFile(f)
 	if err != nil {
 		log.Fatal(err)
 	}

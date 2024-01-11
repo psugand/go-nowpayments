@@ -9,7 +9,7 @@ import (
 	"github.com/rotisserie/eris"
 )
 
-type credentials struct {
+type Credentials struct {
 	APIKey       string `json:"apiKey"`
 	IPNSecretKey string `json:"ipnSecretKey"`
 	Login        string `json:"login"`
@@ -17,25 +17,19 @@ type credentials struct {
 	Server       string `json:"server"`
 }
 
-var conf credentials
+var conf Credentials
 
 func configErr(err error) error {
 	return eris.Wrap(err, "config")
 }
 
 // Load parses a JSON file to get the required credentials to operate NOWPayment's API.
-func Load(r io.Reader) error {
-	if r == nil {
+func Load(c *Credentials) error {
+	if c == nil {
 		return configErr(errors.New("nil reader"))
 	}
 
-	conf = credentials{}
-	d := json.NewDecoder(r)
-
-	err := d.Decode(&conf)
-	if err != nil {
-		return configErr(err)
-	}
+	conf = *c
 
 	// Sanity checks.
 	if conf.APIKey == "" {
@@ -43,6 +37,39 @@ func Load(r io.Reader) error {
 	}
 	if conf.IPNSecretKey == "" {
 		return configErr(errors.New("IPN secret key is missing"))
+	}
+	if conf.Login == "" {
+		return configErr(errors.New("login info missing"))
+	}
+	if conf.Password == "" {
+		return configErr(errors.New("password info missing"))
+	}
+	if conf.Server == "" {
+		return configErr(errors.New("server URL missing"))
+	} else {
+		_, err := url.Parse(conf.Server)
+		if err != nil {
+			return configErr(errors.New("server URL parsing"))
+		}
+	}
+
+	return nil
+}
+
+// LoadFromFile parses a JSON file to get the required credentials to operate NOWPayment's API.
+func LoadFromFile(r io.Reader) error {
+	if r == nil {
+		return configErr(errors.New("nil reader"))
+	}
+	conf = Credentials{}
+	d := json.NewDecoder(r)
+	err := d.Decode(&conf)
+	if err != nil {
+		return configErr(err)
+	}
+	// Sanity checks.
+	if conf.APIKey == "" {
+		return configErr(errors.New("API key is missing"))
 	}
 	if conf.Login == "" {
 		return configErr(errors.New("login info missing"))

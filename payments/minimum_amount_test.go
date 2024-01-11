@@ -29,7 +29,7 @@ func TestMinimumAmount(t *testing.T) {
 			func(c *mocks.HTTPClient) {
 				resp := newResponseOK(`{"currency_from":"eur","currency_to":"btc","min_amount":1.0}`)
 				c.EXPECT().Do(mock.Anything).Run(func(req *http.Request) {
-					assert.Equal("currency_from=eur&currency_to=btc",
+					assert.Equal("currency_from=eur&currency_to=btc&fiat_equivalent=usd",
 						req.URL.Query().Encode(), "check query parameters")
 					assert.Equal("/v1/min-amount", req.URL.Path, "bad endpoint")
 				}).Return(resp, nil)

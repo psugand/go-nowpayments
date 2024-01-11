@@ -6,11 +6,47 @@ import (
 	"testing"
 )
 
+var validCfg = Credentials{
+	Server:       "http://some.tld",
+	Login:        "mylogin",
+	Password:     "mypass",
+	APIKey:       "key",
+	IPNSecretKey: "key",
+}
+
 func TestLoad(t *testing.T) {
-	emptyAPIKeyCfg := `{"server":"http://some.tld","login":"mylogin","password":"mypass"}`
-	emptyLoginCfg := `{"server":"http://some.tld","apiKey":"key","password":"mypass"}`
-	emptyPasswordCfg := `{"server":"http://some.tld","login":"mylogin","apiKey":"key"}`
-	emptyServerCfg := `{"apiKey":"key","login":"mylogin","password":"mypass"}`
+	emptyAPIKeyCfg := Credentials{Server: "http://some.tld", Login: "mylogin", Password: "mypass", IPNSecretKey: "key"}
+	emptyLoginCfg := Credentials{Server: "http://some.tld", APIKey: "key", Password: "mypass", IPNSecretKey: "key"}
+	emptyPasswordCfg := Credentials{Server: "http://some.tld", APIKey: "key", Login: "mylogin", IPNSecretKey: "key"}
+	emptyServerCfg := Credentials{APIKey: "key", Login: "mylogin", Password: "mypass", IPNSecretKey: "key"}
+	tests := []struct {
+		name    string
+		r       *Credentials
+		wantErr bool
+	}{
+		{"nil reader", nil, true},
+		{"bad config", &Credentials{}, true},
+		{"valid config", &validCfg, false},
+		{"empty API key", &emptyAPIKeyCfg, true},
+		{"empty login", &emptyLoginCfg, true},
+		{"empty password", &emptyPasswordCfg, true},
+		{"empty server", &emptyServerCfg, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := Load(tt.r); (err != nil) != tt.wantErr {
+				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestLoadFromFile(t *testing.T) {
+	emptyAPIKeyCfg := `{"server":"http://some.tld","login":"mylogin","password":"mypass","ipnSecretKey":"key"}`
+	emptyLoginCfg := `{"server":"http://some.tld","apiKey":"key","password":"mypass","ipnSecretKey":"key"}`
+	emptyPasswordCfg := `{"server":"http://some.tld","login":"mylogin","apiKey":"key","ipnSecretKey":"key"}`
+	emptyServerCfg := `{"apiKey":"key","login":"mylogin","password":"mypass","ipnSecretKey":"key"}`
+	validCfg := `{"server":"http://some.tld","apiKey":"key","login":"mylogin","password":"mypass","ipnSecretKey":"key"}`
 	tests := []struct {
 		name    string
 		r       io.Reader
@@ -26,24 +62,15 @@ func TestLoad(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Load(tt.r); (err != nil) != tt.wantErr {
+			if err := LoadFromFile(tt.r); (err != nil) != tt.wantErr {
 				t.Errorf("Load() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-var validCfg = `
-{
-	"server": "http://some.tld",
-	"login": "mylogin",
-	"password": "mypass",
-	"apiKey": "key"
-}
-`
-
 func TestLogin(t *testing.T) {
-	Load(strings.NewReader(validCfg))
+	Load(&validCfg)
 	tests := []struct {
 		name string
 		want string
@@ -60,7 +87,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestPassword(t *testing.T) {
-	Load(strings.NewReader(validCfg))
+	Load(&validCfg)
 	tests := []struct {
 		name string
 		want string
@@ -77,7 +104,7 @@ func TestPassword(t *testing.T) {
 }
 
 func TestAPIKey(t *testing.T) {
-	Load(strings.NewReader(validCfg))
+	Load(&validCfg)
 	tests := []struct {
 		name string
 		want string
@@ -94,7 +121,7 @@ func TestAPIKey(t *testing.T) {
 }
 
 func TestServer(t *testing.T) {
-	Load(strings.NewReader(validCfg))
+	Load(&validCfg)
 	tests := []struct {
 		name string
 		want string
